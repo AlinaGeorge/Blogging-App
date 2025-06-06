@@ -2,6 +2,9 @@ from rest_framework import generics
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
 from rest_framework.serializers import ModelSerializer
+from rest_framework import viewsets, permissions
+from .models import Post
+from .serializers import PostSerializer
 
 # User Serializer
 class UserSerializer(ModelSerializer):
@@ -17,4 +20,17 @@ class UserSerializer(ModelSerializer):
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]  
+    permission_classes = [AllowAny]
+    
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = ['author__username']
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)  
+
+
